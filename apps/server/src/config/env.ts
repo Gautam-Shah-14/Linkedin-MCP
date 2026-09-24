@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -13,6 +14,7 @@ const envSchema = z.object({
   LINKEDIN_COMMUNITY_CLIENT_ID: z.string().optional(),
   LINKEDIN_COMMUNITY_CLIENT_SECRET: z.string().optional(),
   ALLOWED_OAUTH_REDIRECTS: z.string().optional(),
+  LINKEDIN_MOCK: z.coerce.boolean().default(false),
 });
 
 export type Env = z.infer<typeof envSchema>;

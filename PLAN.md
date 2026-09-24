@@ -223,25 +223,25 @@ Each phase ends with a "done when" check. Don't start the next phase until it pa
 - [ ] Render web service (Starter) + `mcp.tokenburners.co.in` CNAME.
 - **Done when:** `GET /health` returns 200 on the custom domain over HTTPS.
 
-### Phase 1: LinkedIn core + DB
-- [ ] Drizzle schema + first migration.
-- [ ] `linkedin/http.ts`, `oauth.ts`, `posts.ts`, `images.ts`, `littleText.ts`.
-- [ ] REST: `/api/linkedin/connect` → LinkedIn consent → callback stores encrypted token + creates `authors` row.
-- [ ] `postService`: create draft, approve, publish.
-- **Done when:** a post with an image is published to your personal profile via REST (curl) and appears on LinkedIn.
+### Phase 1: LinkedIn core + DB — done (mocked LinkedIn credentials)
+- [x] Drizzle schema + first migration.
+- [x] `linkedin/http.ts`, `oauth.ts` (as `real.ts`/`mock.ts` behind a shared `LinkedInClient` interface), `posts.ts` (`createPost`), `images.ts` (image upload), `littleText.ts`.
+- [x] REST: `/api/linkedin/connect` → LinkedIn consent → `/api/linkedin/callback` stores encrypted token + creates `authors` row.
+- [x] `postService`: create draft, update, attach image, approve, publish, schedule.
+- **Done when:** a post is published to a (mocked) profile via REST (curl) — verified locally against real Postgres with `LINKEDIN_MOCK=true`.
+- **Still real-credential-gated:** actual publish to a real LinkedIn profile/page needs App A's real client id/secret (§7); swap `LINKEDIN_MOCK=false` once they exist. Image attach also needs an outbound-reachable image URL.
 
-### Phase 2: MCP endpoint (no auth yet, dev only)
-- [ ] `McpServer` with `list_authors`, `create_draft`, `update_draft`, `list_posts`, `attach_image`.
-- [ ] Streamable HTTP on `/mcp`.
-- [ ] Test with MCP Inspector (`npx @modelcontextprotocol/inspector`).
-- **Done when:** Inspector lists tools and `create_draft` creates a row visible via REST.
+### Phase 2: MCP endpoint — done
+- [x] `McpServer` with `list_authors`, `create_draft`, `update_draft`, `list_posts`, `attach_image`, plus `publish_post`/`schedule_post` (pulled forward from Phase 3/4 since MCP + the claude.ai connector are the current priority).
+- [x] Streamable HTTP on `/mcp` (stateless: fresh server+transport per request).
+- **Done when:** verified via curl JSON-RPC (`initialize`, `tools/list`, `tools/call`) — all 7 tools list with correct annotations, `create_draft` creates a row visible via REST.
 
-### Phase 3: OAuth + claude.ai connector
-- [ ] App auth (register/login, bcrypt, JWT).
-- [ ] OAuth provider + `mcpAuthRouter`, login/consent views, `requireBearerAuth` on `/mcp`.
-- [ ] `publish_post` with `confirm_text` check + `can_publish` check + audit log.
-- [ ] Deploy. Add as custom connector in claude.ai (Settings → Connectors).
-- **Done when:** from claude.ai you can draft a post, and publishing asks for confirmation and then succeeds. An unauthenticated `/mcp` call returns 401.
+### Phase 3: OAuth + claude.ai connector — server side done, connector registration pending
+- [x] App auth (register/login, bcrypt, JWT) — `/api/auth/register`, `/api/auth/login`.
+- [x] OAuth provider + `mcpAuthRouter`, login page (`/oauth/login`), `requireBearerAuth` on `/mcp`. Dynamic Client Registration, PKCE (S256), refresh token rotation all implemented and tested via curl.
+- [x] `publish_post` with `confirm_text` check + `can_publish` check + audit log.
+- [ ] Deploy publicly. Add as custom connector in claude.ai (Settings → Connectors) — needs a public HTTPS URL (Render + domain from Phase 0).
+- **Done when:** from claude.ai you can draft a post, and publishing asks for confirmation and then succeeds. An unauthenticated `/mcp` call returns 401 — **verified locally**; claude.ai registration itself needs a public deployment.
 
 ### Phase 4: Web app + scheduling
 - [ ] Next.js: login, connect-LinkedIn page, dashboard (drafts / scheduled / published / failed).
