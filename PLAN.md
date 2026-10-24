@@ -5,6 +5,43 @@
 
 ---
 
+## 0. Current status (updated 2026-10-24)
+
+**PAUSED on purpose.** Order of work set by the owner: (1) wait for LinkedIn Community Management API approval, (2) then run the real LinkedIn tests, (3) then deploy. Do not start real-LinkedIn testing or deployment before the approval arrives.
+
+### Waiting on
+- **Community Management API (App B)** — development tier access form submitted; LinkedIn status "1 of 2, Access Form Review, review in progress". LinkedIn said it may email the business email within 10–14 business days. Business email: `connect@tokenburners.co.in` (forwards to the project Gmail). Do not resubmit or change App B's company page/products while under review.
+
+### Done
+- Server code on branch `claude/youthful-brown-r7yzu9` (not merged to `main` at time of writing): 7 MCP tools, OAuth 2.1 + PKCE + DCR, mock LinkedIn client, CI.
+- Publishing and scheduling now require an `approved` post (approval is a human REST action, `POST /api/posts/:id/approve`, with a `can_publish` check). There is deliberately no MCP approve tool.
+- `LINKEDIN_MOCK=false` is now parsed correctly (was read as true).
+- Browser flow for connecting LinkedIn: `GET /linkedin/connect` (sign in, then LinkedIn consent; with `LINKEDIN_MOCK=true` it goes straight to the callback). OAuth `state` is a signed 10-minute token, not a raw user id.
+- `LINKEDIN_VERSION` default is `202610` in `.env.example` (untested against the live API; try `202609` if LinkedIn rejects it).
+- Tests: 7 passing (littleText, env parsing, signed state). Walkthrough of login, mock connect, OAuth, and all 7 tools verified against a local Postgres.
+- Setup guide: `docs/linkedin-setup.md`.
+
+### External state
+- **Supabase** project "Linkedin-MCP" (ref `jnbbuemxfmsjcbhdmxoz`, ap-south-1): migrations 0000 and 0001 applied via the Supabase tool, so drizzle's own migration table does not know about them (running `drizzle-kit migrate` against it would try to recreate tables). Dev user `dev@tokenburners.local` seeded (id `92cee76a-68d1-4279-9130-b334565a4267`). The DB password was shared in a chat message and should be rotated. Direct Postgres (port 5432) is not reachable from the cloud session, only from a normal machine.
+- **LinkedIn App A** (id 265043361): Share on LinkedIn Default Tier provisioned. Redirect URL registered: `http://localhost:4000/api/linkedin/callback`. Client id/secret live in the cloud environment variables (names `LINKEDIN_SHARE_CLIENT_ID` / `LINKEDIN_SHARE_CLIENT_SECRET`), visible only in sessions started after they were saved. No real LinkedIn call has been made yet.
+- **Domain** `tokenburners.co.in` (Vercel DNS, team `gautmshah-projects`): added MX `mx1/mx2.improvmx.com` (10/20) and SPF TXT for ImprovMX forwarding. Existing website/ALIAS/CAA records untouched. Aliases `connect@` and `gautam.shah@` plus a catch-all forward to Gmail. The existing TokenBurners and StoryForge sites must not be disturbed.
+
+### Known gaps / follow-ups
+- Reconnecting LinkedIn inserts a new account and author row each time (no upsert).
+- Other REST routes (`/api/posts`, `/api/authors`) still use the dev-only `X-User-Id` header instead of real bearer auth.
+- `create_draft`, `update_draft`, `attach_image` have `destructiveHint: false` (they do not publish); CLAUDE.md says write tools must be true — decide and make the rule and code agree.
+- `attach_image` downloads any URL it is given (SSRF risk); restrict before deploying.
+- Test coverage is thin: no automated tests for the DB, OAuth, or MCP tools.
+- Phase 4 (web app, scheduler) and Phase 5 (company page) are not started; there is no scheduler yet, so scheduled posts will not publish.
+
+### Resume checklist (when approval arrives)
+1. Add the real App B credentials (`LINKEDIN_COMMUNITY_CLIENT_ID/SECRET`) as environment variables; add the redirect URL to App B.
+2. Real test as a person with App A from a machine that can open a browser: `npm run dev:server`, open `/linkedin/connect`, draft, approve, publish.
+3. Build Phase 5 (connect App B for the organisation, `urn:li:organization:` author, stats and comments).
+4. Only then deploy (Render + domain) and register the claude.ai connector.
+
+---
+
 ## 1. Scope
 
 ### v1 (build this)
