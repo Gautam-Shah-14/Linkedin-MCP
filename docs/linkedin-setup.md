@@ -25,8 +25,8 @@ Two LinkedIn developer apps are needed (see PLAN.md §7). Start with App A: it i
    LINKEDIN_SHARE_CLIENT_SECRET=...
    ```
    On Render, set the same names as environment variables instead.
-7. Restart the server and start the connect flow at `/api/linkedin/connect`.
-   Today that route is guarded by the dev-only `X-User-Id` header, which a browser does not send. Until the real app login lands, send the header with a tool that can (for example a browser extension that sets request headers), or open the URL the route would redirect to by hand with `state=<your user id>`.
+7. Restart the server and open `/linkedin/connect` in a browser. Sign in with your app account; you are then sent to LinkedIn's consent screen.
+   With `LINKEDIN_MOCK=true` it skips LinkedIn and calls our callback directly, so you can rehearse the flow.
 8. Approve on LinkedIn's consent screen. The callback stores the encrypted token and creates an author row for your profile.
 9. Create a draft, approve it (`POST /api/posts/:id/approve`), then publish it (REST or the `publish_post` tool).
 
