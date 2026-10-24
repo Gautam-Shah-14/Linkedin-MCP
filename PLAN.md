@@ -20,6 +20,7 @@
 - `LINKEDIN_VERSION` default is `202610` in `.env.example` (untested against the live API; try `202609` if LinkedIn rejects it).
 - Tests: 7 passing (littleText, env parsing, signed state). Walkthrough of login, mock connect, OAuth, and all 7 tools verified against a local Postgres.
 - Setup guide: `docs/linkedin-setup.md`.
+- **Instagram support added** (Instagram API with Instagram Login, no Facebook Page): client (`src/instagram/`), `instagramService`, REST routes, 5 MCP tools, migration `0002`, tests with the mock client. Guide: `docs/instagram-setup.md`. The real Instagram client is untested against Meta; migration `0002` is NOT yet applied to Supabase; no Meta app exists yet.
 
 ### External state
 - **Supabase** project "Linkedin-MCP" (ref `jnbbuemxfmsjcbhdmxoz`, ap-south-1): migrations 0000 and 0001 applied via the Supabase tool, so drizzle's own migration table does not know about them (running `drizzle-kit migrate` against it would try to recreate tables). Dev user `dev@tokenburners.local` seeded (id `92cee76a-68d1-4279-9130-b334565a4267`). The DB password was shared in a chat message and should be rotated. Direct Postgres (port 5432) is not reachable from the cloud session, only from a normal machine.

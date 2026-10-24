@@ -6,6 +6,7 @@ import { logger } from './lib/logger.js';
 import { authRouter } from './routes/auth.js';
 import { authorsRouter } from './routes/authors.js';
 import { healthRouter } from './routes/health.js';
+import { instagramRouter } from './routes/instagram.js';
 import { linkedinRouter } from './routes/linkedin.js';
 import { mcpRouter } from './routes/mcp.js';
 import { oauthLoginRouter } from './routes/oauthLogin.js';
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(oauthLoginRouter);
 app.use(authRouter);
 app.use(linkedinRouter);
+app.use(instagramRouter);
 app.use(authorsRouter);
 app.use(postsRouter);
 

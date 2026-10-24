@@ -4,6 +4,7 @@ import { registerAttachImageTool } from './tools/attachImage.js';
 import { registerCreateDraftTool } from './tools/createDraft.js';
 import { registerListAuthorsTool } from './tools/listAuthors.js';
 import { registerListPostsTool } from './tools/listPosts.js';
+import { registerInstagramTools } from './tools/instagram.js';
 import { registerPublishPostTool } from './tools/publishPost.js';
 import { registerSchedulePostTool } from './tools/schedulePost.js';
 import { registerUpdateDraftTool } from './tools/updateDraft.js';
@@ -22,6 +23,7 @@ export function buildMcpServer(): McpServer {
   registerAttachImageTool(server);
   registerPublishPostTool(server);
   registerSchedulePostTool(server);
+  registerInstagramTools(server);
 
   return server;
 }

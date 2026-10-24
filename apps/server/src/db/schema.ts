@@ -88,6 +88,46 @@ export const posts = pgTable('posts', {
   ...timestamps,
 });
 
+export const instagramAccounts = pgTable(
+  'instagram_accounts',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    igUserId: text('ig_user_id').notNull(),
+    username: text('username').notNull(),
+    accessTokenEnc: text('access_token_enc').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    scopes: text('scopes').notNull(),
+    ...timestamps,
+  },
+  (table) => [uniqueIndex('instagram_accounts_ig_user_id_idx').on(table.igUserId)],
+);
+
+export const instagramPosts = pgTable('instagram_posts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  accountId: uuid('account_id')
+    .notNull()
+    .references(() => instagramAccounts.id, { onDelete: 'cascade' }),
+  createdBy: uuid('created_by')
+    .notNull()
+    .references(() => users.id),
+  approvedBy: uuid('approved_by').references(() => users.id),
+  caption: text('caption').notNull(),
+  imageUrl: text('image_url').notNull(),
+  status: text('status', {
+    enum: ['draft', 'approved', 'publishing', 'published', 'failed'],
+  })
+    .notNull()
+    .default('draft'),
+  publishedAt: timestamp('published_at', { withTimezone: true }),
+  igMediaId: text('ig_media_id'),
+  error: text('error'),
+  source: text('source').notNull(),
+  ...timestamps,
+});
+
 export const oauthClients = pgTable(
   'oauth_clients',
   {
@@ -168,4 +208,18 @@ export const postsRelations = relations(posts, ({ one }) => ({
   author: one(authors, { fields: [posts.authorId], references: [authors.id] }),
   creator: one(users, { fields: [posts.createdBy], references: [users.id] }),
   approver: one(users, { fields: [posts.approvedBy], references: [users.id] }),
+}));
+
+export const instagramAccountsRelations = relations(instagramAccounts, ({ one, many }) => ({
+  user: one(users, { fields: [instagramAccounts.userId], references: [users.id] }),
+  posts: many(instagramPosts),
+}));
+
+export const instagramPostsRelations = relations(instagramPosts, ({ one }) => ({
+  account: one(instagramAccounts, {
+    fields: [instagramPosts.accountId],
+    references: [instagramAccounts.id],
+  }),
+  creator: one(users, { fields: [instagramPosts.createdBy], references: [users.id] }),
+  approver: one(users, { fields: [instagramPosts.approvedBy], references: [users.id] }),
 }));

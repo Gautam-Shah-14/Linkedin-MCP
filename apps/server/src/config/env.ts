@@ -1,6 +1,12 @@
 import 'dotenv/config';
 import { z } from 'zod';
 
+// z.coerce.boolean() would treat the string 'false' as true.
+const boolFlag = z
+  .enum(['true', 'false', '1', '0'])
+  .default('false')
+  .transform((v) => v === 'true' || v === '1');
+
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -14,11 +20,11 @@ const envSchema = z.object({
   LINKEDIN_COMMUNITY_CLIENT_ID: z.string().optional(),
   LINKEDIN_COMMUNITY_CLIENT_SECRET: z.string().optional(),
   ALLOWED_OAUTH_REDIRECTS: z.string().optional(),
-  // z.coerce.boolean() would treat the string 'false' as true.
-  LINKEDIN_MOCK: z
-    .enum(['true', 'false', '1', '0'])
-    .default('false')
-    .transform((v) => v === 'true' || v === '1'),
+  LINKEDIN_MOCK: boolFlag,
+  INSTAGRAM_CLIENT_ID: z.string().optional(),
+  INSTAGRAM_CLIENT_SECRET: z.string().optional(),
+  INSTAGRAM_API_VERSION: z.string().default('v26.0'),
+  INSTAGRAM_MOCK: boolFlag,
 });
 
 export type Env = z.infer<typeof envSchema>;

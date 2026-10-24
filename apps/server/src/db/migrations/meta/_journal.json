@@ -15,6 +15,13 @@
       "when": 1790252627187,
       "tag": "0001_sudden_microchip",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792863794196,
+      "tag": "0002_wet_ricochet",
+      "breakpoints": true
     }
   ]
 }

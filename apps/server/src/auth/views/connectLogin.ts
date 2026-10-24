@@ -1,10 +1,14 @@
-export function renderConnectLoginPage(opts: { error?: string }): string {
-  const { error } = opts;
+export function renderConnectLoginPage(opts: {
+  error?: string;
+  provider?: 'LinkedIn' | 'Instagram';
+  action?: string;
+}): string {
+  const { error, provider = 'LinkedIn', action = '/linkedin/connect' } = opts;
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Connect LinkedIn — TokenBurners</title>
+    <title>Connect ${provider} — TokenBurners</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       body { font-family: system-ui, sans-serif; max-width: 420px; margin: 64px auto; padding: 0 16px; color: #1a1a1a; }
@@ -18,16 +22,16 @@ export function renderConnectLoginPage(opts: { error?: string }): string {
   </head>
   <body>
     <div class="card">
-      <h1>Sign in to connect LinkedIn</h1>
+      <h1>Sign in to connect ${provider}</h1>
       ${error ? `<p class="error">${escapeHtml(error)}</p>` : ''}
-      <form method="POST" action="/linkedin/connect">
+      <form method="POST" action="${action}">
         <label>Email
           <input type="email" name="email" required autofocus />
         </label>
         <label>Password
           <input type="password" name="password" required />
         </label>
-        <button type="submit">Sign in &amp; continue to LinkedIn</button>
+        <button type="submit">Sign in &amp; continue to ${provider}</button>
       </form>
     </div>
   </body>

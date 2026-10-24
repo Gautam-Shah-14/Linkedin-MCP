@@ -26,19 +26,22 @@ export function verifyAccessToken(token: string): AccessTokenClaims & { exp: num
   return jwt.verify(token, getSigningKey()) as AccessTokenClaims & { exp: number };
 }
 
-const LINKEDIN_STATE_TTL_SECONDS = 10 * 60;
+const CONNECT_STATE_TTL_SECONDS = 10 * 60;
 
-/** Signed OAuth `state` for the LinkedIn connect flow, so the callback can't be pointed at an arbitrary user id. */
-export function signLinkedInState(userId: string): string {
-  return jwt.sign({ sub: userId, purpose: 'linkedin_connect' }, getSigningKey(), {
-    expiresIn: LINKEDIN_STATE_TTL_SECONDS,
+/** Signed OAuth `state` for a provider connect flow, so the callback can't be pointed at an arbitrary user id. */
+export function signConnectState(userId: string, purpose: string): string {
+  return jwt.sign({ sub: userId, purpose }, getSigningKey(), {
+    expiresIn: CONNECT_STATE_TTL_SECONDS,
   });
 }
 
-export function verifyLinkedInState(state: string): string {
+export function verifyConnectState(state: string, purpose: string): string {
   const claims = jwt.verify(state, getSigningKey()) as { sub?: string; purpose?: string };
-  if (claims.purpose !== 'linkedin_connect' || !claims.sub) {
+  if (claims.purpose !== purpose || !claims.sub) {
     throw new Error('Invalid state');
   }
   return claims.sub;
 }
+
+export const signLinkedInState = (userId: string): string => signConnectState(userId, 'linkedin_connect');
+export const verifyLinkedInState = (state: string): string => verifyConnectState(state, 'linkedin_connect');
