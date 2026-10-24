@@ -124,9 +124,8 @@ export async function publishPost(db: Database, input: PublishPostInput) {
   if (!existing) {
     throw new Error('Post not found');
   }
-  const publishableStatuses: PostStatus[] = ['draft', 'pending_approval', 'approved'];
-  if (!publishableStatuses.includes(existing.status as PostStatus)) {
-    throw new Error(`Cannot publish a post with status ${existing.status}`);
+  if (existing.status !== 'approved') {
+    throw new Error(`Cannot publish a post with status ${existing.status}: it must be approved first`);
   }
   const expectedConfirm = existing.text.slice(0, 30);
   if (input.confirmText !== expectedConfirm) {
@@ -173,9 +172,8 @@ export async function schedulePost(db: Database, draftId: string, scheduledAt: D
   if (!existing) {
     throw new Error('Post not found');
   }
-  const schedulableStatuses: PostStatus[] = ['draft', 'pending_approval', 'approved'];
-  if (!schedulableStatuses.includes(existing.status as PostStatus)) {
-    throw new Error(`Cannot schedule a post with status ${existing.status}`);
+  if (existing.status !== 'approved') {
+    throw new Error(`Cannot schedule a post with status ${existing.status}: it must be approved first`);
   }
   const [row] = await db
     .update(posts)

@@ -120,6 +120,15 @@ postsRouter.post('/api/posts/:id/image', async (req, res, next) => {
 
 postsRouter.post('/api/posts/:id/approve', async (req, res, next) => {
   try {
+    const post = await getPost(db, req.params.id);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+    if (!(await userCanPublishAsAuthor(db, req.userId!, post.authorId))) {
+      res.status(403).json({ error: 'Not authorized to approve as this author' });
+      return;
+    }
     const row = await approveDraft(db, req.params.id, req.userId!);
     await recordAuditEvent(db, {
       userId: req.userId,
@@ -171,6 +180,15 @@ const scheduleSchema = z.object({
 postsRouter.post('/api/posts/:id/schedule', async (req, res, next) => {
   try {
     const input = scheduleSchema.parse(req.body);
+    const post = await getPost(db, req.params.id);
+    if (!post) {
+      res.status(404).json({ error: 'Post not found' });
+      return;
+    }
+    if (!(await userCanPublishAsAuthor(db, req.userId!, post.authorId))) {
+      res.status(403).json({ error: 'Not authorized to schedule as this author' });
+      return;
+    }
     const row = await schedulePost(db, req.params.id, new Date(input.scheduledAt));
     res.json({ post: row });
   } catch (err) {

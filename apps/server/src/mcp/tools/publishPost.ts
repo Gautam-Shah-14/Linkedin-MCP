@@ -13,7 +13,7 @@ export function registerPublishPostTool(server: McpServer): void {
     {
       title: 'Publish a LinkedIn post',
       description:
-        'Publishes a draft to LinkedIn immediately. This is irreversible. confirmText must exactly equal the first 30 characters of the draft text — fetch the draft with list_posts first and echo it back, so the human reviewing this tool call can see exactly what will be published.',
+        'Publishes an approved draft to LinkedIn immediately (a human must approve it first via the app). This is irreversible. confirmText must exactly equal the first 30 characters of the draft text — fetch the draft with list_posts first and echo it back, so the human reviewing this tool call can see exactly what will be published.',
       inputSchema: {
         draftId: z.string().uuid(),
         confirmText: z

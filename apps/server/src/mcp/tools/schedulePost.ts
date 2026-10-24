@@ -13,7 +13,7 @@ export function registerSchedulePostTool(server: McpServer): void {
     {
       title: 'Schedule a LinkedIn post',
       description:
-        'Schedules a draft to be published to LinkedIn automatically at a future time.',
+        'Schedules an approved draft to be published to LinkedIn automatically at a future time.',
       inputSchema: {
         draftId: z.string().uuid(),
         scheduledAt: z.string().datetime().describe('ISO 8601 timestamp, in the future'),
