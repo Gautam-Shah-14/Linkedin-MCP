@@ -14,7 +14,11 @@ const envSchema = z.object({
   LINKEDIN_COMMUNITY_CLIENT_ID: z.string().optional(),
   LINKEDIN_COMMUNITY_CLIENT_SECRET: z.string().optional(),
   ALLOWED_OAUTH_REDIRECTS: z.string().optional(),
-  LINKEDIN_MOCK: z.coerce.boolean().default(false),
+  // z.coerce.boolean() would treat the string 'false' as true.
+  LINKEDIN_MOCK: z
+    .enum(['true', 'false', '1', '0'])
+    .default('false')
+    .transform((v) => v === 'true' || v === '1'),
 });
 
 export type Env = z.infer<typeof envSchema>;
